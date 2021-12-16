@@ -1,5 +1,7 @@
 package gr.athenarc.imsi.visualfacts.tool.domain;
 
+import gr.athenarc.imsi.visualfacts.queryER.VizUtilities.DedupVizOutput;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -8,13 +10,17 @@ public class VisQueryResults implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    List<GroupedStats> series;
-
-    private List<float[]> points;
+    private List<Object[]> points;
 
     private Map<Integer, List<String>> facets;
 
+    List<GroupedStats> series;
+
     private RectStats rectStats;
+
+    List<GroupedStats> cleanedSeries;
+
+    private RectStats cleanedRectStats;
 
     private int fullyContainedTileCount;
     private int tileCount;
@@ -23,6 +29,8 @@ public class VisQueryResults implements Serializable {
 
     private int totalTileCount;
     private int totalPointCount;
+
+    private DedupVizOutput dedupVizOutput;
 
 
     public List<GroupedStats> getSeries() {
@@ -33,11 +41,11 @@ public class VisQueryResults implements Serializable {
         this.series = series;
     }
 
-    public List<float[]> getPoints() {
+    public List<Object[]> getPoints() {
         return points;
     }
 
-    public void setPoints(List<float[]> points) {
+    public void setPoints(List<Object[]> points) {
         this.points = points;
     }
 
@@ -55,6 +63,22 @@ public class VisQueryResults implements Serializable {
 
     public void setRectStats(RectStats rectStats) {
         this.rectStats = rectStats;
+    }
+
+    public List<GroupedStats> getCleanedSeries() {
+        return cleanedSeries;
+    }
+
+    public void setCleanedSeries(List<GroupedStats> cleanedSeries) {
+        this.cleanedSeries = cleanedSeries;
+    }
+
+    public RectStats getCleanedRectStats() {
+        return cleanedRectStats;
+    }
+
+    public void setCleanedRectStats(RectStats cleanedRectStats) {
+        this.cleanedRectStats = cleanedRectStats;
     }
 
     public int getFullyContainedTileCount() {
@@ -105,12 +129,17 @@ public class VisQueryResults implements Serializable {
         this.totalPointCount = totalPointCount;
     }
 
+    public DedupVizOutput getDedupVizOutput() {
+        return dedupVizOutput;
+    }
+
+    public void setDedupVizOutput(DedupVizOutput dedupVizOutput) {
+        this.dedupVizOutput = dedupVizOutput;
+    }
+
     @Override
     public String toString() {
         return "VisQueryResults{" +
-            "series=" + series +
-            ", facets=" + facets +
-            ", rectStats=" + rectStats +
             ", fullyContainedTileCount=" + fullyContainedTileCount +
             ", tileCount=" + tileCount +
             ", pointCount=" + pointCount +

@@ -1,5 +1,7 @@
 package gr.athenarc.imsi.visualfacts.tool.web.rest;
 
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
 import gr.athenarc.imsi.visualfacts.tool.domain.Dataset;
 import gr.athenarc.imsi.visualfacts.tool.domain.VisQuery;
 import gr.athenarc.imsi.visualfacts.tool.domain.VisQueryResults;
@@ -15,11 +17,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import static gr.athenarc.imsi.visualfacts.config.IndexConfig.DELIMITER;
+
 
 /**
  * REST controller for managing {@link gr.athenarc.imsi.visualfacts.tool.domain.Dataset}.
@@ -33,6 +41,9 @@ public class DatasetResource {
     private final RawDataService rawDataService;
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
+
+    @Value("${application.workspacePath}")
+    private String workspacePath;
 
     public DatasetResource(DatasetRepository datasetRepository, RawDataService rawDataService) {
         this.datasetRepository = datasetRepository;
@@ -87,7 +98,15 @@ public class DatasetResource {
     @GetMapping("/datasets")
     public List<Dataset> getAllDatasets() throws IOException {
         log.debug("REST request to get all Datasets");
-        return datasetRepository.findAll();
+        List<Dataset> datasets = datasetRepository.findAll();
+        datasets.stream().forEach(dataset -> {
+            try {
+                fillHeader(dataset);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+            }
+        });
+        return datasets;
     }
 
     /**
@@ -100,6 +119,13 @@ public class DatasetResource {
     public ResponseEntity<Dataset> getDataset(@PathVariable String id) throws IOException {
         log.debug("REST request to get Dataset : {}", id);
         Optional<Dataset> dataset = datasetRepository.findById(id);
+        dataset.ifPresent(d -> {
+            try {
+                fillHeader(d);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+            }
+        });
         log.debug(dataset.toString());
         return ResponseUtil.wrapOrNotFound(dataset);
     }
@@ -127,6 +153,13 @@ public class DatasetResource {
         return ResponseUtil.wrapOrNotFound(queryResultsOptional);
     }
 
+    @GetMapping("/datasets/{datasetId}/objects/{objectId}")
+    public ResponseEntity<String[]> getObject(@PathVariable String datasetId, @PathVariable Long objectId) throws IOException {
+        log.debug("REST request to retrieve object {} from dataset {}", objectId, datasetId);
+        Optional<String[]> optional = datasetRepository.findById(datasetId).map(dataset -> rawDataService.getObject(dataset, objectId));
+        return ResponseUtil.wrapOrNotFound(optional);
+    }
+
     @PostMapping(path = "/datasets/{id}/reset-index")
     public void resetIndex(@PathVariable String id) throws IOException {
         log.debug("REST request to reset index for dataset: {}", id);
@@ -137,6 +170,20 @@ public class DatasetResource {
     public IndexStatus getIndexStatus(@PathVariable String id) {
         return new IndexStatus(rawDataService.isIndexInitialized(id), rawDataService.getObjectsIndexed(id));
     }
+
+    private void fillHeader(Dataset dataset) {
+        CsvParserSettings parserSettings = new CsvParserSettings();
+        parserSettings.getFormat().setDelimiter(DELIMITER);
+        parserSettings.setIgnoreLeadingWhitespaces(false);
+        parserSettings.setIgnoreTrailingWhitespaces(false);
+        CsvParser parser = new CsvParser(parserSettings);
+        parser.beginParsing(new File(workspacePath, dataset.getName()), Charset.forName("US-ASCII"));
+        parser.parseNext();
+        dataset.setHeaders(parser.getContext().parsedHeaders());
+        log.debug("Headers: " + Arrays.toString(dataset.getHeaders()));
+        parser.stopParsing();
+    }
+
 }
 
 class IndexStatus {
