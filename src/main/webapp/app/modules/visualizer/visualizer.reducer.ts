@@ -10,8 +10,7 @@ import { IRectStats } from 'app/shared/model/rect-stats.model';
 import { IDedupStats } from 'app/shared/model/rect-dedup-stats.model';
 import { IGroupedStats } from 'app/shared/model/grouped-stats.model';
 import { defaultValue, IIndexStatus } from 'app/shared/model/index-status.model';
-import { MIN_DEDUP_ZOOM_LEVEL } from 'app/config/constants';
-import { DatasetType } from 'app/shared/model/enumerations/dataset-type.model';
+import { MAX_ZOOM, MIN_DEDUP_ZOOM_LEVEL } from 'app/config/constants';
 
 export const ACTION_TYPES = {
   FETCH_DATASET: 'visualizer/FETCH_DATASET',
@@ -73,7 +72,7 @@ const initialState = {
   allowDedup: false,
   showDuplicates: false,
   duplicates: [],
-  selectedDedupClusterIndex: null,
+  selectedDuplicate: null,
   expandedClusterIndex: null,
   row: null,
   selectedPointId: null,
@@ -123,7 +122,7 @@ export default (state: VisualizerState = initialState, action): VisualizerState 
         ...state,
         dedupStats: action.payload.dedupStats,
         duplicates: action.payload.duplicates,
-        selectedDedupClusterIndex: null,
+        selectedDuplicate: null,
       };
     case REQUEST(ACTION_TYPES.UPDATE_DUPLICATES):
       return {
@@ -220,12 +219,12 @@ export default (state: VisualizerState = initialState, action): VisualizerState 
     case ACTION_TYPES.SELECT_DUPLICATE_CLUSTER:
       return {
         ...state,
-        selectedDedupClusterIndex: action.payload,
+        selectedDuplicate: action.payload,
       };
     case ACTION_TYPES.UNSELECT_DUPLICATE_CLUSTER:
       return {
         ...state,
-        selectedDedupClusterIndex: null,
+        selectedDuplicate: null,
       };
     case REQUEST(ACTION_TYPES.FETCH_ROW):
       return {
@@ -277,19 +276,21 @@ export const getRow = (datasetId, rowId) => {
 const prepareSupercluster = points => {
   const geoJsonPoints = points.map(point => ({
     type: 'Feature',
-    properties: { totalCount: point[2] || 1, points: [point] },
+    properties: { totalCount: 1, unmergedCount: point[2], points: [point] },
     geometry: {
       type: 'Point',
       coordinates: [point[1], point[0]],
     },
   }));
   const supercluster = new Supercluster({
-    log: true,
+    log: false,
     radius: 60,
     extent: 256,
-    maxZoom: 18,
+    maxZoom: MAX_ZOOM,
+    minPoints: 3,
     reduce(accumulated, props) {
       accumulated.totalCount += props.totalCount;
+      accumulated.unmergedCount += props.unmergedCount;
       accumulated.points = accumulated.points.concat(props.points);
     },
   });
@@ -325,8 +326,8 @@ const getDuplicateData = (data, dataset) => {
           lat = 0;
         }
       }
-      return [lon, lat, d.VizData.length, d.groupedObj, d.clusterColumns];
-    }).filter(d => d[2] < 8),
+      return [lat, lon, d.VizData.length, d.groupedObj, d.clusterColumns, d.VizData[d.VizData.length - 1].offset];
+    }),
   };
   return duplicateData;
 };
@@ -368,11 +369,17 @@ export const updateClusters = id => (dispatch, getState) => {
           payload: { ...res.data, executionTime: responseTime - requestTime },
         });
 
-        showDuplicates &&
+        let duplicateData;
+        let points = res.data.points || [];
+
+        if (showDuplicates) {
+          duplicateData = getDuplicateData(res.data.dedupVizOutput, dataset);
+          points = points.concat(duplicateData.duplicates);
           dispatch({
             type: ACTION_TYPES.UPDATE_DUPLICATES,
-            payload: getDuplicateData(res.data.dedupVizOutput, dataset),
+            payload: duplicateData,
           });
+        }
 
         if (drawnRect == null) {
           dispatch({
@@ -380,7 +387,7 @@ export const updateClusters = id => (dispatch, getState) => {
             payload: res,
           });
         }
-        const points = res.data.points || [];
+
         const supercluster = prepareSupercluster(points);
         return supercluster.getClusters([-180, -85, 180, 85], zoom);
       }),
@@ -459,7 +466,7 @@ export const reset = id => async dispatch => {
   dispatch(updateClusters(id));
 };
 
-export const selectDuplicateCluster = duplicateClusterIndex => dispatch => {
+export const selectDuplicateCluster = duplicate => dispatch => {
   /*  const dedupClusterStats = {
       clusterColumnSimilarity,
       clusterColumnValues,
@@ -467,7 +474,7 @@ export const selectDuplicateCluster = duplicateClusterIndex => dispatch => {
     }; */
   dispatch({
     type: ACTION_TYPES.SELECT_DUPLICATE_CLUSTER,
-    payload: duplicateClusterIndex,
+    payload: duplicate,
   });
 };
 

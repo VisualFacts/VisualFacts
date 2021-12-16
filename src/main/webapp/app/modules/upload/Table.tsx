@@ -335,6 +335,28 @@ export const TablePagination = () => {
                           }}
                         />
                       </Form.Field>
+                      {/* <Form.Field>
+                        <label>Measures</label>
+                        <Dropdown
+                          className="dropdown"
+                          multiple
+                          placeholder={
+                            uploadState.dropdown3 !== '' && uploadState.dropdown4 !== ''
+                              ? `${uploadState.dropdown3.toString(), uploadState.dropdown4.toString()}`
+                              : 'MAX 2'
+                          }
+                          search
+                          selection
+                          value={uploadState.data.length === 0 ? [] : [`${uploadState.dropdown3}`, `${uploadState.dropdown4}`]}
+                          options={uploadState.data.length === 0 ? [] : options}
+                          onChange={(e, data) => {
+                              dispatch(Actions.setDropbox3(data.value[0]));
+                              dropdownMeasureChange(data.value[0], 0);
+                              dispatch(Actions.setDropbox4(data.value[1]));
+                              dropdownMeasureChange(data.value[1], 1);
+                          }}
+                        />
+                      </Form.Field> */}
                       <Form.Field>
                         <label>Dimensions</label>
                         <Dropdown

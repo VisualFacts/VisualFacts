@@ -77,14 +77,14 @@ const Upload = () => {
       <Provider store={store}>
         <Grid verticalAlign="middle" padded inverted stackable>
           <Grid.Row columns="2" color="black">
-            <Grid.Column width="2">
+            <Grid.Column width="3">
               <Link to={`/`}>
-                <Image src="/content/images/logo.png" size="small"></Image>
+                <Image src="/content/images/vf_logo_transparent.png" size="large"></Image>
               </Link>
             </Grid.Column>
             <Grid.Column textAlign="right" floated="right" verticalAlign="bottom">
               <Header inverted color="grey" as="h5">
-                Online tool for importing editing and saving datasets
+              Democratizing Visual Analytics, A Self-Service Platform for Big Data Exploration
               </Header>
             </Grid.Column>
           </Grid.Row>
