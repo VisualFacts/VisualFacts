@@ -258,7 +258,7 @@ export const TablePagination = () => {
             </Grid.Row>
             <Divider />
             <Grid.Row columns="2">
-              <Grid.Column width="5" textAlign="center">
+              <Grid.Column width="3" textAlign="center">
                 <div className="menu-content">
                   <div className="dropdowns">
                     <Form>
@@ -304,7 +304,7 @@ export const TablePagination = () => {
                         />
                       </Form.Field>
                       <Form.Field>
-                        <label>Measure0</label>
+                        <label>Measures</label>
                         <Dropdown
                           className="dropdown"
                           placeholder={uploadState.dropdown3}
@@ -318,9 +318,7 @@ export const TablePagination = () => {
                             dropdownMeasureChange(data.value, 0);
                           }}
                         />
-                      </Form.Field>
-                      <Form.Field>
-                        <label>Measure1</label>
+                        <Divider hidden />
                         <Dropdown
                           className="dropdown"
                           placeholder={uploadState.dropdown4}
@@ -333,27 +331,25 @@ export const TablePagination = () => {
                             dispatch(Actions.setDropbox4(data.value));
                             dropdownMeasureChange(data.value, 1);
                           }}
-                        />
+                        />                 
                       </Form.Field>
                       {/* <Form.Field>
-                        <label>Measures</label>
+                        <label>MeasuresNEW</label>
                         <Dropdown
                           className="dropdown"
                           multiple
-                          placeholder={
-                            uploadState.dropdown3 !== '' && uploadState.dropdown4 !== ''
-                              ? `${uploadState.dropdown3.toString(), uploadState.dropdown4.toString()}`
-                              : 'MAX 2'
-                          }
+                          placeholder={`${uploadState.dropdown3}, ${uploadState.dropdown4}`}
                           search
                           selection
-                          value={uploadState.data.length === 0 ? [] : [`${uploadState.dropdown3}`, `${uploadState.dropdown4}`]}
-                          options={uploadState.data.length === 0 ? [] : options}
+                          value={[uploadState.dropdown3, uploadState.dropdown4]}
+                          options={filterOptions(checkLatLon(uploadState.data.slice(1, 50), null)).length === 0 ? options : filterOptions(checkLatLon(uploadState.data.slice(1, 50), null))}
                           onChange={(e, data) => {
-                              dispatch(Actions.setDropbox3(data.value[0]));
-                              dropdownMeasureChange(data.value[0], 0);
-                              dispatch(Actions.setDropbox4(data.value[1]));
-                              dropdownMeasureChange(data.value[1], 1);
+                            console.log(data.value);
+                              data.value[0] && (dispatch(Actions.setDropbox3(data.value[0])),
+                              dropdownMeasureChange(data.value[0], 0));
+
+                              data.value[1] &&  (dispatch(Actions.setDropbox4(data.value[1])),
+                              dropdownMeasureChange(data.value[1], 1));
                           }}
                         />
                       </Form.Field> */}
@@ -394,6 +390,8 @@ export const TablePagination = () => {
               </Grid.Column>
             </Grid.Row>
           </Grid>
+          {console.log(options)}
+          {console.log(filterOptions(checkLatLon(uploadState.data.slice(1, 50), null)))}
         </>
       ) : (
         <>
