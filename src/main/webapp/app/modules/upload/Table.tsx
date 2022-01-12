@@ -331,7 +331,7 @@ export const TablePagination = () => {
                             dispatch(Actions.setDropbox4(data.value));
                             dropdownMeasureChange(data.value, 1);
                           }}
-                        />                 
+                        />
                       </Form.Field>
                       {/* <Form.Field>
                         <label>MeasuresNEW</label>
@@ -390,8 +390,6 @@ export const TablePagination = () => {
               </Grid.Column>
             </Grid.Row>
           </Grid>
-          {console.log(options)}
-          {console.log(filterOptions(checkLatLon(uploadState.data.slice(1, 50), null)))}
         </>
       ) : (
         <>
