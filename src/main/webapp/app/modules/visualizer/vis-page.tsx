@@ -1,11 +1,12 @@
-import React, {useEffect} from 'react';
-import {connect} from 'react-redux';
-import {RouteComponentProps} from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { RouteComponentProps } from 'react-router-dom';
 
-import {IRootState} from 'app/shared/reducers';
+import { IRootState } from 'app/shared/reducers';
 import {
   getDataset,
-  getIndexStatus, getRow,
+  getIndexStatus,
+  getRow,
   reset,
   selectDuplicateCluster,
   toggleDuplicates,
@@ -17,19 +18,21 @@ import {
   updateGroupBy,
   updateMapBounds,
   updateMeasure,
-  updateDedupColumn, updateExpandedClusterIndex, getDatasets
+  updateDedupColumn,
+  updateExpandedClusterIndex,
+  getDatasets,
 } from './visualizer.reducer';
-import Map from "app/modules/visualizer/map";
+import Map from 'app/modules/visualizer/map';
 import './visualizer.scss';
-import DedupChartCluster from "app/modules/visualizer/dedup-chart-cluster";
-import StatsPanel from "app/modules/visualizer/stats-panel";
-import Chart from "app/modules/visualizer/chart";
-import VisControl from "app/modules/visualizer/vis-control";
-import {Header, Modal, Progress} from "semantic-ui-react";
-import QueryInfoPanel from "app/modules/visualizer/query-info-panel";
+import DedupChartCluster from 'app/modules/visualizer/dedup-chart-cluster';
+import StatsPanel from 'app/modules/visualizer/stats-panel';
+import Chart from 'app/modules/visualizer/chart';
+import VisControl from 'app/modules/visualizer/vis-control';
+import MapSearch from 'app/modules/visualizer/map-search';
+import { Header, Modal, Progress } from 'semantic-ui-react';
+import QueryInfoPanel from 'app/modules/visualizer/query-info-panel';
 
-export interface IVisPageProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {
-}
+export interface IVisPageProps extends StateProps, DispatchProps, RouteComponentProps<{ id: string }> {}
 
 export const VisPage = (props: IVisPageProps) => {
   const {
@@ -163,11 +166,11 @@ export const VisPage = (props: IVisPageProps) => {
       {/* <Modal.Content>
         <Progress progress='percent' value={indexStatus.objectsIndexed} total={dataset.objectCount} autoSuccess precision={2}/>
       </Modal.Content> */}
-    </Modal>
-  </div>;
+        </Modal>
+      </div>
 };
 
-const mapStateToProps = ({visualizer}: IRootState) => ({
+const mapStateToProps = ({ visualizer }: IRootState) => ({
   loading: visualizer.loading,
   loadingDups: visualizer.loadingDups,
   dataset: visualizer.dataset,
@@ -201,7 +204,7 @@ const mapStateToProps = ({visualizer}: IRootState) => ({
   row: visualizer.row,
   dedupColumn: visualizer.dedupColumn,
   expandedClusterIndex: visualizer.expandedClusterIndex,
-  cleanedRectStats: visualizer.cleanedRectStats
+  cleanedRectStats: visualizer.cleanedRectStats,
 });
 
 const mapDispatchToProps = {

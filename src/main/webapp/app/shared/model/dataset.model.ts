@@ -4,6 +4,7 @@ export interface IDataset {
   id?: string;
   name?: string;
   type?: DatasetType;
+  hasHeader?: boolean;
   headers?: string[];
   measure0?: number;
   measure1?: number;

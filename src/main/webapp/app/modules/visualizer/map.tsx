@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import L from "leaflet";
+import React, { useEffect, useState } from 'react';
+import L from 'leaflet';
 import {
   getRow,
   selectDuplicateCluster,
@@ -7,13 +7,14 @@ import {
   updateDrawnRect,
   updateExpandedClusterIndex,
   updateMapBounds,
-} from "app/modules/visualizer/visualizer.reducer";
-import {MapContainer, Marker, Polyline, Popup, TileLayer, ZoomControl} from "react-leaflet";
+} from 'app/modules/visualizer/visualizer.reducer';
+import { MapContainer, Marker, Polyline, Popup, TileLayer, ZoomControl } from 'react-leaflet';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import 'leaflet-draw';
 import {IDataset} from "app/shared/model/dataset.model";
 import {MAX_ZOOM} from "app/config/constants";
 import {BeautifyIcon} from "app/modules/visualizer/beautify-marker/leaflet-beautify-marker-icon";
+import MapSearch from './map-search';
 
 
 export interface IMapProps {
@@ -130,10 +131,9 @@ const SinglePoint = (props: any) => {
             }}/>;
 };
 
-
 const SpiderfyCluster = (props: any) => {
-  const {points, coordinates, dataset, row} = props;
-  const angleStep = Math.PI * 2 / points.length;
+  const { points, coordinates, dataset, row } = props;
+  const angleStep = (Math.PI * 2) / points.length;
   const legLength = 0.0003;
   return <>{points.map((point, i) => {
       const angle = i * angleStep;
@@ -156,8 +156,6 @@ export const Map = (props: IMapProps) => {
   const {clusters, dataset, showDuplicates, selectedDuplicate, row, expandedClusterIndex} = props;
 
   const [map, setMap] = useState(null);
-
-
   useEffect(() => {
     if (!map) return;
 
@@ -183,7 +181,7 @@ export const Map = (props: IMapProps) => {
     map.addControl(drawControl);
 
     // @ts-ignore
-    map.on(L.Draw.Event.CREATED, (e) => {
+    map.on(L.Draw.Event.CREATED, e => {
       const type = e.layerType;
       const layer = e.layer;
       drawnItems.clearLayers();
@@ -191,11 +189,11 @@ export const Map = (props: IMapProps) => {
       props.updateDrawnRect(props.id, layer._bounds);
     });
     // @ts-ignore
-    map.on(L.Draw.Event.DELETED, (e) => {
+    map.on(L.Draw.Event.DELETED, e => {
       props.updateDrawnRect(props.id, null);
     });
 
-    map.on('moveend', (e) => {
+    map.on('moveend', e => {
       props.updateMapBounds(props.id, e.target.getBounds(), e.target.getZoom());
     });
 
@@ -207,12 +205,12 @@ export const Map = (props: IMapProps) => {
   }, [map])
 
 
-  return <MapContainer scrollWheelZoom={true} whenCreated={setMap} zoomControl={false} maxZoom={MAX_ZOOM}>
+  return <><MapContainer scrollWheelZoom={true} whenCreated={setMap} zoomControl={false} maxZoom={MAX_ZOOM}>
     <TileLayer
       attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
     />
-    {clusters && clusters.map((cluster, index) => {
+    {map && clusters && clusters.map((cluster, index) => {
       // every cluster point has coordinates
       // the point may be either a cluster or a single point
       const {
@@ -254,15 +252,16 @@ export const Map = (props: IMapProps) => {
                   click(e) {
                     props.selectDuplicateCluster(index);
                   },
-
                 }}
         />);
     })}*/}
     <ZoomControl position="topright"/>
   </MapContainer>;
-
+  <div className="search-bar-ui">
+  <MapSearch map={map} />
+</div>
+</>
 
 };
-
 
 export default Map;

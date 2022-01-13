@@ -1,0 +1,65 @@
+#root {
+  height: 100%;
+}
+
+.table_over {
+  max-height: 35rem;
+  overflow: scroll;
+}
+
+.app_content {
+  height: 100%;
+  width: 90%;
+  text-align: center;
+}
+
+.app-container {
+  height: 100%;
+}
+
+.root-div {
+  height: 100%;
+}
+
+.menu-content .dropdowns {
+  display: flex;
+}
+
+.menu-content .dropdown {
+  width: 280px;
+}
+
+.ui.pagination.menu {
+  margin: 0;
+  margin-left: auto;
+  height: fit-content;
+}
+
+.checkbox {
+  width: 250px;
+}
+
+.ui.checkbox .box,
+.ui.checkbox label {
+  cursor: auto;
+  position: relative;
+  display: block;
+  padding-left: 1.85714em;
+  outline: 0;
+  font-size: 1.5em;
+}
+
+.ui.search.dropdown > .text {
+  cursor: text;
+  position: relative;
+  left: 1px;
+  z-index: 3;
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.leaflet-map.leaflet-container {
+  width: 100%;
+  height: 50vh;
+}

@@ -18,7 +18,8 @@
   border-radius: 100%;
 }
 
-.beautify-marker.circle-dot, .beautify-marker.doughnut {
+.beautify-marker.circle-dot,
+.beautify-marker.doughnut {
   border-radius: 100%;
 }
 
@@ -29,7 +30,6 @@
   border-bottom-right-radius: 0%;
   /* rotating 45deg clockwise to get the corner bottom center */
   transform: rotate(45deg);
-
 }
 
 .beautify-marker.marker > * {
@@ -37,20 +37,18 @@
   transform: rotate(-45deg);
 }
 
-
 .beautify-marker[data-badge]:after {
   position: absolute;
   left: 60%;
   bottom: 50%;
   content: attr(data-badge);
   font-size: 90%;
-  padding: .3em;
+  padding: 0.3em;
   border-radius: 999px;
-  line-height: .65em;
+  line-height: 0.65em;
   color: white;
   background: rgba(84, 78, 78, 0.8);
   text-align: center;
   min-width: 2em;
   font-weight: bold;
 }
-

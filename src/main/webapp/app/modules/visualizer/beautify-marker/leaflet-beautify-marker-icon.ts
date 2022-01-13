@@ -1,47 +1,44 @@
-import L from "leaflet";
+import L from 'leaflet';
 import './leaflet-beautify-marker-icon.css';
 
 /*
-* Default settings for various style markers
-*/
+ * Default settings for various style markers
+ */
 const defaults = {
-
   iconColor: '#1EB300',
 
   iconAnchor: {
-    'marker': [14, 36]
-    , 'circle': [11, 10]
-    , 'circle-dot': [5, 5]
-    , 'rectangle-dot': [5, 6]
-    , 'doughnut': [8, 8]
+    marker: [14, 36],
+    circle: [11, 10],
+    'circle-dot': [5, 5],
+    'rectangle-dot': [5, 6],
+    doughnut: [8, 8],
   },
 
   popupAnchor: {
-    'marker': [0, -25]
-    , 'circle': [-3, -76]
-    , 'circle-dot': [0, -2]
-    , 'rectangle-dot': [0, -2]
-    , 'doughnut': [0, -2]
+    marker: [0, -25],
+    circle: [-3, -76],
+    'circle-dot': [0, -2],
+    'rectangle-dot': [0, -2],
+    doughnut: [0, -2],
   },
 
   innerIconAnchor: {
-    'marker': [-2, 5]
-    , 'circle': [0, 2]
+    marker: [-2, 5],
+    circle: [0, 2],
   },
 
   iconSize: {
-    'marker': [28, 28]
-    , 'circle': [22, 22]
-    , 'circle-dot': [2, 2]
-    , 'rectangle-dot': [2, 2]
-    , 'doughnut': [15, 15]
-  }
+    marker: [28, 28],
+    circle: [22, 22],
+    'circle-dot': [2, 2],
+    'rectangle-dot': [2, 2],
+    doughnut: [15, 15],
+  },
 };
 
 export const BeautifyIcon = {
-
   Icon: L.Icon.extend({
-
     options: {
       icon: 'leaf',
       iconSize: defaults.iconSize.circle,
@@ -62,17 +59,15 @@ export const BeautifyIcon = {
       customClasses: '',
       spin: false,
       prefix: 'fa',
-      html: ''
+      html: '',
     },
 
     initialize(options) {
-
       this.applyDefaults(options);
-      this.options = (!options || !options.html) ? L.Util.setOptions(this, options) : options;
+      this.options = !options || !options.html ? L.Util.setOptions(this, options) : options;
     },
 
     applyDefaults(options) {
-
       if (options) {
         if (!options.iconSize && options.iconShape) {
           options.iconSize = defaults.iconSize[options.iconShape];
@@ -89,9 +84,11 @@ export const BeautifyIcon = {
         if (!options.innerIconAnchor) {
           // if icon is type of circle or marker
           if (options.iconShape === 'circle' || options.iconShape === 'marker') {
-            if (options.iconShape === 'circle' && options.isAlphaNumericIcon) { // if circle with text
+            if (options.iconShape === 'circle' && options.isAlphaNumericIcon) {
+              // if circle with text
               options.innerIconAnchor = [0, -1];
-            } else if (options.iconShape === 'marker' && !options.isAlphaNumericIcon) {// marker with icon
+            } else if (options.iconShape === 'marker' && !options.isAlphaNumericIcon) {
+              // marker with icon
               options.innerIconAnchor = defaults.innerIconAnchor[options.iconShape];
             }
           }
@@ -100,8 +97,8 @@ export const BeautifyIcon = {
     },
 
     createIcon() {
-      const iconDiv = document.createElement('div')
-        , options = this.options;
+      const iconDiv = document.createElement('div'),
+        options = this.options;
 
       iconDiv.innerHTML = !options.html ? this.createIconInnerHtml() : options.html;
       this._setIconStyles(iconDiv);
@@ -118,13 +115,10 @@ export const BeautifyIcon = {
         return wrapperDiv;
       }
 
-
-
       return iconDiv;
     },
 
     createIconInnerHtml() {
-
       const options = this.options;
 
       if (options.iconShape === 'circle-dot' || options.iconShape === 'rectangle-dot' || options.iconShape === 'doughnut') {
@@ -141,20 +135,22 @@ export const BeautifyIcon = {
         spinClass = ' fa-spin';
       }
 
-      return '<i class="' + options.prefix + ' ' + options.prefix + '-' + options.icon + spinClass + '" style="' + innerIconStyle + '"></i>';
+      return (
+        '<i class="' + options.prefix + ' ' + options.prefix + '-' + options.icon + spinClass + '" style="' + innerIconStyle + '"></i>'
+      );
     },
 
     getInnerIconStyle(options) {
-
-      const innerAnchor = L.point(options.innerIconAnchor)
-      return 'color:' + options.textColor + ';margin-top:' + innerAnchor.y + 'px; margin-left:' + innerAnchor.x + 'px;' + options.innerIconStyle;
+      const innerAnchor = L.point(options.innerIconAnchor);
+      return (
+        'color:' + options.textColor + ';margin-top:' + innerAnchor.y + 'px; margin-left:' + innerAnchor.x + 'px;' + options.innerIconStyle
+      );
     },
 
     _setIconStyles(iconDiv) {
-
-      const options = this.options
-        , size = L.point(options.iconSize)
-        , anchor = L.point(options.iconAnchor);
+      const options = this.options,
+        size = L.point(options.iconSize),
+        anchor = L.point(options.iconAnchor);
 
       iconDiv.className = 'beautify-marker ';
 
@@ -178,8 +174,8 @@ export const BeautifyIcon = {
       }
 
       if (anchor) {
-        iconDiv.style.marginLeft = (-anchor.x) + 'px';
-        iconDiv.style.marginTop = (-anchor.y) + 'px';
+        iconDiv.style.marginLeft = -anchor.x + 'px';
+        iconDiv.style.marginTop = -anchor.y + 'px';
       }
 
       if (options.iconStyle) {
@@ -187,11 +183,11 @@ export const BeautifyIcon = {
         cStyle += options.iconStyle;
         iconDiv.setAttribute('style', cStyle);
       }
-    }
+    },
   }),
 
   icon(options) {
     // @ts-ignore
     return new BeautifyIcon.Icon(options);
-  }
+  },
 };

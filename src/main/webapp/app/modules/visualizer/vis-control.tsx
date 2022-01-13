@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {IDataset} from "app/shared/model/dataset.model";
-import {Accordion, Checkbox, Divider, Dropdown, Icon, Image, List, Message, Popup, Segment} from "semantic-ui-react";
+import {Accordion, Checkbox, Divider, Dropdown, DropdownDivider, DropdownItem, Icon, Image, List, Message, Popup, Segment} from "semantic-ui-react";
 import {reset, toggleDuplicates, updateFilters} from "app/modules/visualizer/visualizer.reducer";
 import {NavLink as Link} from 'react-router-dom';
 import _ from 'lodash';
@@ -148,12 +148,13 @@ export const VisControl = (props: IVisControlProps) => {
       <Dropdown.Menu>
         {datasets.map((d, index) => <Dropdown.Item key={index} as={Link} to={`/visualize/${d.id}`}
                                                    text={d.name}/>)}
+         <DropdownDivider /> 
+         <DropdownItem key="addNew" as={Link} to={'/upload'} text="New Dataset" icon="plus" />                                          
       </Dropdown.Menu>
     </Dropdown>
 
     {/*
         <Label size='large' color='blue'>
-
         </Label> <Popup content='Reinitialize Dataset Index' trigger={<Button circular compact icon='refresh' size='mini'
                                                                            onClick={() => props.reset(dataset.id)}/>}/>*/}
 
