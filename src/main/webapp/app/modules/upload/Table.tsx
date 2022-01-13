@@ -266,7 +266,7 @@ export const TablePagination = () => {
                         <Checkbox
                           className="checkbox"
                           slider
-                          label="Headless File"
+                          label="No Header"
                           checked={uploadState.checkbox}
                           onChange={handleChange}
                         />
