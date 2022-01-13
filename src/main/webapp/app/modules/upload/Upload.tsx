@@ -14,7 +14,7 @@ const App = () => {
   const storeState = useSelector((state: RootState) => state);
   const dispatch = useDispatch();
   let jsx;
-  
+
   const papaparseOptions = {
     header: false,
     dynamicTyping: true,
@@ -78,9 +78,7 @@ const Upload = () => {
         <Grid verticalAlign="middle" padded inverted stackable>
           <Grid.Row columns="2" color="black">
             <Grid.Column width="3">
-              <Link to={`/`}>
-                <Image src="/content/images/vf_logo_transparent.png" size="large"></Image>
-              </Link>
+              <Image href='/' src='./content/images/vf_logo_transparent.png' style={{width: 300, paddingBottom: "10px"}}/>
             </Grid.Column>
             <Grid.Column textAlign="right" floated="right" verticalAlign="bottom">
               <Header inverted color="grey" as="h5">
