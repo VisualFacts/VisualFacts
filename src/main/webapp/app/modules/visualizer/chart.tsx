@@ -4,7 +4,7 @@ import HighchartsReact from 'highcharts-react-official';
 import Heatmap from 'highcharts/modules/heatmap.js';
 import {IDataset} from "app/shared/model/dataset.model";
 import {Button, Dropdown, Label, Popup, Segment} from "semantic-ui-react";
-import {updateAggType, updateGroupBy, updateMeasure} from './visualizer.reducer';
+import {updateAggType, updateChartType, updateGroupBy, updateMeasure} from './visualizer.reducer';
 import {AggregateFunctionType} from "app/shared/model/enumerations/aggregate-function-type.model";
 import {IGroupedStats} from "app/shared/model/grouped-stats.model";
 import _ from 'lodash';
@@ -13,6 +13,7 @@ Heatmap(Highcharts);
 
 export interface IChartProps {
   dataset: IDataset,
+  chartType: string,
   series: IGroupedStats[],
   cleanedSeries: IGroupedStats[],
   groupByCols: number[],
@@ -22,17 +23,17 @@ export interface IChartProps {
   showDuplicates: boolean,
   updateGroupBy: typeof updateGroupBy,
   updateAggType: typeof updateAggType,
-  updateMeasure: typeof updateMeasure
+  updateMeasure: typeof updateMeasure,
+  updateChartType: typeof updateChartType,
 }
 
 
 export const Chart = (props: IChartProps) => {
-  const {dataset, series, aggType, measureCol, dataSource, cleanedSeries, showDuplicates} = props;
+  const {dataset, series, aggType, chartType, measureCol, dataSource, cleanedSeries, showDuplicates} = props;
   const usedSeries = cleanedSeries === null ? series : cleanedSeries;
   const groupByCols = props.groupByCols;
   const dimensions = dataset.dimensions || [];
 
-  const [chartType, setChartType] = useState('column');
 
   const xAxisOptions = dimensions.map(dim => ({key: dim, value: dim, text: dataset.headers[dim]}));
   const aggTypeOptions = Object.values(AggregateFunctionType).map((type, index) => ({
@@ -76,7 +77,7 @@ export const Chart = (props: IChartProps) => {
         props.updateGroupBy(dataset.id, [groupByCols[0]]);
       }
     }
-    setChartType(newChartType);
+    props.updateChartType(newChartType);
   };
 
   let xAxis = groupByCols && groupByCols.length > 0 ? dataset.dimensions.find(d => d === groupByCols[0]) : dataset.dimensions.find(d => d === xAxisOptions[0].key);

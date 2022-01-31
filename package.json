@@ -27,6 +27,7 @@
     "loaders.css": "0.1.2",
     "lodash": "4.17.15",
     "moment": "2.24.0",
+    "qs": "^6.10.3",
     "react": "16.13.1",
     "react-csv-reader": "^3.4.0",
     "react-dom": "16.13.1",
