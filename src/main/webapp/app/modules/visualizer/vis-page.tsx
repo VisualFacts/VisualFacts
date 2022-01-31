@@ -93,9 +93,6 @@ export const VisPage = (props: IVisPageProps) => {
                 facets={facets}
                 updateFilters={props.updateFilters} reset={props.reset} toggleDuplicates={props.toggleDuplicates}
                 showDuplicates={showDuplicates} allowDedup={props.allowDedup} copyCurrentURL={copyCurrentURL}/>
-    <div className="top-panel-group">
-      <Icon circular name='linkify' />
-    </div>
     <Map id={props.match.params.id} clusters={clusters} updateMapBounds={props.updateMapBounds}
          showDuplicates={showDuplicates}
          updateDrawnRect={props.updateDrawnRect} dataset={dataset}
