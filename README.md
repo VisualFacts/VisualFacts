@@ -1,30 +1,12 @@
-# RawVis: In-situ Visual Analytics System
+# Visual Facts Platform
 
-RawVis is an open source data visualization system for in-situ visual exploration and analytics over big raw data.
-RawVis implements novel indexing schemes and adaptive processing techniques allowing users to perform efficient visual
-and analytics operations directly over the data files. RawVis provides real-time interaction, reporting low response
-time, over large data files (e.g., more than 50G & 100M objects), using commodity hardware.
+VisualFacts is a prototype system, a self-service visual analytics platform for big geo-located data that helps data explorers perform ad hoc analysis of raw data files collected from different sources of varying quality (with duplicates or missing data) in rich visual ways, even though they do not have a background in notebooks, data integration, or machine learning techniques. VisualFacts platform offers in-situ visual exploration and analytics, as well as entity resolution analysis.
 
-In RawVis, the user selects a raw file to visualize and analyze, the file is parsed and indexed on-the-fly, generating a
-“crude” initial version of our index. The user, then, performs visual operations, which are translated to queries
-evaluated over the index. Based on the user interaction, the index is adapted incrementally, adjusting its structure and
-updating statistics.
+VisualFacts platform allows users to open their own data file(s) and via a map-centric Dashboard UI start visually interacting with the data without loading or indexing the data in a database. The backbone of the platform is a visual aware in-memory index, which is constructed on the fly and adjusted to user interaction, as well as a powerful deduplication engine which offers on-the-fly visual entity matching and clustering over dirty data. The platform can scale up the visualization, interactive exploration and analysis to million data points on a map, with the use of commodity hardware.
 
-- RawVis System Backend Source Code (e.g., indexes, query
-  processor): [[Link]](https://github.com/VisualFacts/rawvis-index)
+## Building VisualFacts platform
 
-- Online Tool Demo: [[Link]](http://rawviz.imsi.athenarc.gr/visualize/taxi)
-
-- Video Presentation: [[Link]](https://vimeo.com/500596816)
-
-- RawVis Homepage: http://rawvis.net
-
-<br/>
-<br/>
-
-## Building RawVis Tool
-
-To build the RawVis JAR file run:
+To build the VisualFacts platform JAR file run:
 
 ```
 
