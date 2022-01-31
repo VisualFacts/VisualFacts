@@ -1,7 +1,19 @@
 import React, {useState} from 'react';
 import {IDataset} from "app/shared/model/dataset.model";
-import {Accordion, Checkbox, Divider, Dropdown, DropdownDivider, DropdownItem, Icon, Image, List, Message, Popup, Segment} from "semantic-ui-react";
-import {reset, toggleDuplicates, updateFilters} from "app/modules/visualizer/visualizer.reducer";
+import {
+  Accordion,
+  Checkbox,
+  Divider,
+  Dropdown,
+  DropdownDivider,
+  DropdownItem,
+  Icon,
+  Image,
+  List,
+  Popup,
+  Segment
+} from "semantic-ui-react";
+import {getVisURL, reset, toggleDuplicates, updateFilters} from "app/modules/visualizer/visualizer.reducer";
 import {NavLink as Link} from 'react-router-dom';
 import _ from 'lodash';
 
@@ -16,11 +28,12 @@ export interface IVisControlProps {
   updateFilters: typeof updateFilters,
   toggleDuplicates: typeof toggleDuplicates,
   reset: typeof reset,
+  copyCurrentURL: () => void,
 }
 
 
 export const VisControl = (props: IVisControlProps) => {
-  const {dataset, datasets, categoricalFilters, facets} = props;
+  const {dataset, datasets, categoricalFilters, facets, copyCurrentURL} = props;
 
   const [expandedFilter, setExpandedFilter] = useState(null);
 
@@ -46,6 +59,7 @@ export const VisControl = (props: IVisControlProps) => {
   const handleDuplicateToggleChange = (e) => {
     props.toggleDuplicates(dataset.id);
   };
+
 
   /* const filterDropdowns = facets &&
     <div>
@@ -148,8 +162,8 @@ export const VisControl = (props: IVisControlProps) => {
       <Dropdown.Menu>
         {datasets.map((d, index) => <Dropdown.Item key={index} as={Link} to={`/visualize/${d.id}`}
                                                    text={d.name}/>)}
-         <DropdownDivider /> 
-         <DropdownItem key="addNew" as={Link} to={'/upload'} text="New Dataset" icon="plus" />                                          
+        <DropdownDivider/>
+        <DropdownItem key="addNew" as={Link} to={'/upload'} text="New Dataset" icon="plus"/>
       </Dropdown.Menu>
     </Dropdown>
 
@@ -173,18 +187,29 @@ export const VisControl = (props: IVisControlProps) => {
     {filterDropdowns}
     {removeFilters}
     <Popup disabled={props.allowDedup} content="You have to zoom in to be able to merge duplicates" trigger={
-      <Checkbox className="toggle" disabled={!props.allowDedup} label={<label>Merge Duplicates</label>} style={{padding: "15px 7px", marginBottom: "0px"}}
+      <Checkbox className="toggle" disabled={!props.allowDedup} label={<label>Merge Duplicates</label>}
+                style={{padding: "15px 7px", marginBottom: "0px"}}
                 checked={props.showDuplicates}
                 onChange={handleDuplicateToggleChange}
       />
     }/>
-    <Divider />
+    <Divider/>
     <p style={{fontSize: '12px', textAlign: 'justify'}}>
       The use case presents information of ~180K hotels in US gathered from multiple travel agencies. Multiple records
       for a hotel may be included in the data. The origin of the dataset is from https://www.factual.com/; for demo
       reasons, we have further amended, resized and generated duplicate records with different values for various
       attributes (e.g., name of the hotel, price, location, etc) for records coming from different sources.
     </p>
+    <Divider/>
+    <Popup
+      on="click"
+      content="Copied to clipboard!"
+      style={{
+        fontSize: '12px'
+      }}
+      trigger={<a onClick={copyCurrentURL}><Icon name='linkify'/>Share map</a>}
+      basic
+    />
   </Segment>
 };
 

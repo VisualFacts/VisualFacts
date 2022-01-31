@@ -1,16 +1,17 @@
 import axios from 'axios';
-import { FAILURE, REQUEST, SUCCESS } from 'app/shared/reducers/action-type.util';
-import { IDataset } from 'app/shared/model/dataset.model';
-import { IQuery } from 'app/shared/model/query.model';
-import { LatLngBounds } from 'leaflet';
+import {FAILURE, REQUEST, SUCCESS} from 'app/shared/reducers/action-type.util';
+import {IDataset} from 'app/shared/model/dataset.model';
+import {IQuery} from 'app/shared/model/query.model';
+import {LatLngBounds} from 'leaflet';
 import Supercluster from 'supercluster';
-import { IRectangle } from 'app/shared/model/rectangle.model';
-import { AggregateFunctionType } from 'app/shared/model/enumerations/aggregate-function-type.model';
-import { IRectStats } from 'app/shared/model/rect-stats.model';
-import { IDedupStats } from 'app/shared/model/rect-dedup-stats.model';
-import { IGroupedStats } from 'app/shared/model/grouped-stats.model';
-import { defaultValue, IIndexStatus } from 'app/shared/model/index-status.model';
-import { MAX_ZOOM, MIN_DEDUP_ZOOM_LEVEL } from 'app/config/constants';
+import {IRectangle} from 'app/shared/model/rectangle.model';
+import {AggregateFunctionType} from 'app/shared/model/enumerations/aggregate-function-type.model';
+import {IRectStats} from 'app/shared/model/rect-stats.model';
+import {IDedupStats} from 'app/shared/model/rect-dedup-stats.model';
+import {IGroupedStats} from 'app/shared/model/grouped-stats.model';
+import {defaultValue, IIndexStatus} from 'app/shared/model/index-status.model';
+import {MAX_ZOOM, MIN_DEDUP_ZOOM_LEVEL} from 'app/config/constants';
+import qs from 'qs';
 
 export const ACTION_TYPES = {
   FETCH_DATASET: 'visualizer/FETCH_DATASET',
@@ -47,6 +48,7 @@ const initialState = {
   dataset: null,
   datasets: null,
   zoom: 14,
+  chartType: 'column',
   categoricalFilters: {},
   groupByCols: null,
   measureCol: null,
@@ -97,14 +99,22 @@ export default (state: VisualizerState = initialState, action): VisualizerState 
         loading: false,
         errorMessage: action.payload,
       };
-    case SUCCESS(ACTION_TYPES.FETCH_DATASET):
+    case SUCCESS(ACTION_TYPES.FETCH_DATASET): {
+      const dataset = action.payload.data;
       return {
         ...state,
         loading: false,
-        dataset: action.payload.data,
-        groupByCols: [action.payload.data.dimensions[0]],
-        measureCol: action.payload.data.measure0 && action.payload.data.measure0,
+        dataset,
+        groupByCols: action.meta.groupByCols || [dataset.dimensions[0]],
+        measureCol: action.meta.measureCol == null ? dataset.measure0 : action.meta.measureCol,
+        categoricalFilters: action.meta.categoricalFilters || {},
+        viewRect: action.meta.viewRect || {
+          lat: [dataset.queryYMin, dataset.queryYMax],
+          lon: [dataset.queryXMin, dataset.queryXMax]
+        },
+        chartType: action.meta.chartType || 'column',
       };
+    }
     case SUCCESS(ACTION_TYPES.FETCH_DATASET_LIST):
       return {
         ...state,
@@ -138,7 +148,7 @@ export default (state: VisualizerState = initialState, action): VisualizerState 
       return {
         ...state,
         groupByCols: action.payload,
-        series: action.payload.length !== state.groupByCols.length ? [] : state.series,
+        series: [],
       };
     case ACTION_TYPES.UPDATE_MEASURE:
       return {
@@ -154,6 +164,11 @@ export default (state: VisualizerState = initialState, action): VisualizerState 
       return {
         ...state,
         aggType: action.payload,
+      };
+    case ACTION_TYPES.UPDATE_CHART_TYPE:
+      return {
+        ...state,
+        chartType: action.payload,
       };
     case ACTION_TYPES.UPDATE_DRAWN_RECT:
       return {
@@ -246,13 +261,47 @@ export default (state: VisualizerState = initialState, action): VisualizerState 
       return state;
   }
 };
+const parseRouteVisOptions = (query: string) => {
+  const {
+    v: viewRect,
+    g,
+    a: aggType,
+    f: categoricalFilters,
+    m,
+    c: chartType,
+  } = qs.parse(query, {ignoreQueryPrefix: true});
+  const measureCol = m && parseInt(m as string, 10);
+  const groupByCols = g && (g as string[]).map(col => parseInt(col, 10));
+  return {viewRect, groupByCols, aggType, categoricalFilters, measureCol, chartType};
+};
+
+export const urlEncodeVisOptions = (options) => {
+  const {viewRect, measureCol, aggType, categoricalFilters, groupByCols, chartType} = options;
+  return qs.stringify(
+    {
+      v: viewRect,
+      g: groupByCols,
+      a: aggType,
+      f: categoricalFilters,
+      m: measureCol,
+      c: chartType,
+    },
+    {skipNulls: true}
+  );
+};
+
+export const getVisURL = (options) => {
+  const {dataset} = options;
+  return window.location.protocol + '//' + window.location.host + '/visualize/' + dataset.id + '?' + urlEncodeVisOptions(options);
+}
 
 // Actions
-export const getDataset = id => {
+export const getDataset = (id, urlQueryString) => {
   const requestUrl = `api/datasets/${id}`;
   return {
     type: ACTION_TYPES.FETCH_DATASET,
     payload: axios.get<IDataset>(requestUrl),
+    meta: parseRouteVisOptions(urlQueryString)
   };
 };
 
@@ -276,7 +325,7 @@ export const getRow = (datasetId, rowId) => {
 const prepareSupercluster = points => {
   const geoJsonPoints = points.map(point => ({
     type: 'Feature',
-    properties: { totalCount: 1, unmergedCount: point[2], points: [point] },
+    properties: {totalCount: 1, unmergedCount: point[2], points: [point]},
     geometry: {
       type: 'Point',
       coordinates: [point[1], point[0]],
@@ -299,8 +348,18 @@ const prepareSupercluster = points => {
 };
 
 const updateAnalysisResults = id => (dispatch, getState) => {
-  const { categoricalFilters, drawnRect, groupByCols, measureCol, aggType, viewRect } = getState().visualizer;
-  const analysisQuery = { categoricalFilters, rect: drawnRect || viewRect, groupByCols, measureCol, aggType } as IQuery;
+  const {
+    dataset,
+    categoricalFilters,
+    drawnRect,
+    groupByCols,
+    measureCol,
+    aggType,
+    chartType,
+    viewRect
+  } = getState().visualizer;
+  const analysisQuery = {categoricalFilters, rect: drawnRect || viewRect, groupByCols, measureCol, aggType} as IQuery;
+  history.pushState(null, null, getVisURL(getState().visualizer));
   dispatch({
     type: ACTION_TYPES.UPDATE_ANALYSIS_RESULTS,
     payload: axios.post(`api/datasets/${id}/query`, analysisQuery),
@@ -340,6 +399,7 @@ export const updateClusters = id => (dispatch, getState) => {
     groupByCols,
     measureCol,
     aggType,
+    chartType,
     drawnRect,
     showDuplicates,
     dataset,
@@ -348,9 +408,10 @@ export const updateClusters = id => (dispatch, getState) => {
   if (viewRect == null) {
     return;
   }
+  history.pushState(null, null, getVisURL(getState().visualizer));
   dispatch({
     type: ACTION_TYPES.UPDATE_CLUSTERS,
-    meta: { requestTime },
+    meta: {requestTime},
     payload: axios
       .post(`api/datasets/${id}/query`, {
         rect: viewRect,
@@ -362,11 +423,11 @@ export const updateClusters = id => (dispatch, getState) => {
         dedupEnabled: showDuplicates,
       })
       .then(res => {
-        dispatch({ type: ACTION_TYPES.UPDATE_FACETS, payload: res.data.facets });
+        dispatch({type: ACTION_TYPES.UPDATE_FACETS, payload: res.data.facets});
         const responseTime = new Date().getTime();
         dispatch({
           type: ACTION_TYPES.UPDATE_QUERY_INFO,
-          payload: { ...res.data, executionTime: responseTime - requestTime },
+          payload: {...res.data, executionTime: responseTime - requestTime},
         });
 
         let duplicateData;
@@ -404,13 +465,13 @@ export const updateFilters = (id, filters) => dispatch => {
 };
 
 export const updateGroupBy = (id, groupByCols) => (dispatch, getState) => {
-  const { categoricalFilters } = getState().visualizer;
+  const {categoricalFilters} = getState().visualizer;
 
   dispatch({
     type: ACTION_TYPES.UPDATE_GROUP_BY,
     payload: groupByCols,
   });
-  const newCategoricalFilters = { ...categoricalFilters };
+  const newCategoricalFilters = {...categoricalFilters};
   groupByCols.forEach(groupByCol => {
     delete newCategoricalFilters[groupByCol];
   });
@@ -424,6 +485,15 @@ export const updateMeasure = (id, measureCol) => dispatch => {
   });
   dispatch(updateAnalysisResults(id));
 };
+
+export const updateChartType = (chartType:string) => (dispatch, getState) => {
+  dispatch({
+    type: ACTION_TYPES.UPDATE_CHART_TYPE,
+    payload: chartType,
+  });
+  history.pushState(null, null, getVisURL(getState().visualizer));
+};
+
 
 export const updateAggType = (id, aggType) => dispatch => {
   dispatch({
@@ -452,7 +522,7 @@ export const updateMapBounds = (id, bounds: LatLngBounds, zoom: number) => dispa
   };
   dispatch({
     type: ACTION_TYPES.UPDATE_MAP_BOUNDS,
-    payload: { zoom, viewRect },
+    payload: {zoom, viewRect},
   });
   dispatch(updateClusters(id));
 };

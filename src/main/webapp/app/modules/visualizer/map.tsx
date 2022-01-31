@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import L from 'leaflet';
 import {
   getRow,
@@ -8,7 +8,7 @@ import {
   updateExpandedClusterIndex,
   updateMapBounds,
 } from 'app/modules/visualizer/visualizer.reducer';
-import { MapContainer, Marker, Polyline, Popup, TileLayer, ZoomControl } from 'react-leaflet';
+import {MapContainer, Marker, Polyline, Popup, TileLayer, ZoomControl} from 'react-leaflet';
 import 'leaflet-draw/dist/leaflet.draw.css';
 import 'leaflet-draw';
 import {IDataset} from "app/shared/model/dataset.model";
@@ -132,7 +132,7 @@ const SinglePoint = (props: any) => {
 };
 
 const SpiderfyCluster = (props: any) => {
-  const { points, coordinates, dataset, row } = props;
+  const {points, coordinates, dataset, row} = props;
   const angleStep = (Math.PI * 2) / points.length;
   const legLength = 0.0003;
   return <>{points.map((point, i) => {
@@ -153,7 +153,7 @@ const SpiderfyCluster = (props: any) => {
 
 export const Map = (props: IMapProps) => {
 
-  const {clusters, dataset, showDuplicates, selectedDuplicate, row, expandedClusterIndex} = props;
+  const {clusters, dataset, row, expandedClusterIndex, viewRect} = props;
 
   const [map, setMap] = useState(null);
   useEffect(() => {
@@ -200,8 +200,7 @@ export const Map = (props: IMapProps) => {
     map.on('click', e => {
       props.updateExpandedClusterIndex(null);
     });
-
-    map.fitBounds([[dataset.queryYMin, dataset.queryXMin], [dataset.queryYMax, dataset.queryXMax]]);
+    map.fitBounds([[viewRect.lat[0], viewRect.lon[0]], [viewRect.lat[1], viewRect.lon[1]]]);
   }, [map])
 
 
@@ -256,11 +255,11 @@ export const Map = (props: IMapProps) => {
         />);
     })}*/}
     <ZoomControl position="topright"/>
-  </MapContainer>;
-  <div className="search-bar-ui">
-  <MapSearch map={map} />
-</div>
-</>
+  </MapContainer>
+    <div className="search-bar-ui">
+      <MapSearch map={map}/>
+    </div>
+  </>
 
 };
 
