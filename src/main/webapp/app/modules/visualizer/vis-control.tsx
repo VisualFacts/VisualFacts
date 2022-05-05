@@ -194,13 +194,13 @@ export const VisControl = (props: IVisControlProps) => {
       />
     }/>
     <Divider/>
-    <p style={{fontSize: '12px', textAlign: 'justify'}}>
+    {/* <p style={{fontSize: '12px', textAlign: 'justify'}}>
       The use case presents information of ~180K hotels in US gathered from multiple travel agencies. Multiple records
       for a hotel may be included in the data. The origin of the dataset is from https://www.factual.com/; for demo
       reasons, we have further amended, resized and generated duplicate records with different values for various
       attributes (e.g., name of the hotel, price, location, etc) for records coming from different sources.
     </p>
-    <Divider/>
+    <Divider/> */}
     <Popup
       on="click"
       content="Copied to clipboard!"

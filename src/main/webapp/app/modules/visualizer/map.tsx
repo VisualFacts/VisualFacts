@@ -236,12 +236,12 @@ export const Map = (props: IMapProps) => {
                      }}> </Marker>;
     })}
 
-    <Marker position={[40.75795780927519, -73.98551938996594]}
+    {/* <Marker position={[40.75795780927519, -73.98551938996594]}
             icon={L.divIcon({
               html: `<i class="star blue icon" style="font-size: 2.5em"></i>`,
               className: `marker`,
               iconSize: L.point(50, 50)
-            })}/>
+            })}/> */}
     {/*    {showDuplicates && duplicates && duplicates.map((duplicate, index) => {
       return (
         <Marker key={`marker-${index}`}
