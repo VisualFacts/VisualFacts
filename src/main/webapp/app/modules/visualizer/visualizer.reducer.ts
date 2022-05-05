@@ -285,7 +285,7 @@ export const urlEncodeVisOptions = options => {
 
 export const getVisURL = options => {
   const { dataset } = options;
-  return window.location.protocol + '//' + window.location.host + '/visualize/' + dataset.id;
+  return window.location.protocol + '//' + window.location.host + '/platform/visualize/' + dataset.id;
 };
 
 // Actions
