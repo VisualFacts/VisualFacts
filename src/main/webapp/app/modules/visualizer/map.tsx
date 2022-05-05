@@ -114,7 +114,7 @@ const SinglePoint = (props: any) => {
           return (
             <div key={colIndex}>
                     <span>
-                    <b>{colName}: </b>{val}
+                    <b>{colName}: </b>{val.startsWith("http") ? <a href={val}>{val}</a> : val}
                     </span>
               <br></br>
             </div>
