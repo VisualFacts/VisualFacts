@@ -54,7 +54,7 @@ public class DataRepositoryImpl implements DatasetRepository {
       reader = new BufferedReader(new FileReader(Paths.get(applicationProperties.getWorkspacePath() + "/" + id).toString()));
       String line = reader.readLine();
       Integer i = 0;
-      while (i != 50) {
+      while (i != 50 && line != null) {
         System.out.println(line);
         if (i == 0) {
           filedata = line;
